@@ -3,45 +3,28 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { join } from 'path';
 import { UsersModule } from './users/users.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
-
-const env = `${(process.env.NODE_ENV || 'development').toLowerCase()}`;
+import { User } from './users/entities/user.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: join(process.cwd(), `.env.${env}`),
-      isGlobal: true,
-    }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRoot({
+      autoSchemaFile: true,
       driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      sortSchema: true,
     }),
     // Add your database connection here
     // This example uses TypeORM with a postgres database
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST'),
-        port: config.get<number>('DB_PORT'),
-        username: config.get<string>('DB_USERNAME'),
-        password: config.get<string>('DB_PASSWORD'),
-        database: config.get<string>('DB_DATABASE'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
-        logging: env === 'development' ? true : false,
-        ssl: env === 'production' ? { rejectUnauthorized: false } : false,
-      }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: '123',
+      database: 'test_db',
+      entities: [User],
+      synchronize: true,
     }),
     UsersModule,
     AuthModule,

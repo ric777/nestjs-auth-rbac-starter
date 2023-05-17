@@ -25,6 +25,8 @@ export class UsersResolver {
   }
 
   @Query(() => User, { name: 'user' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   findOne(@Args('email') email: string): Promise<User> {
     return this.usersService.findOne(email);
   }

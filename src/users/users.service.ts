@@ -15,7 +15,7 @@ export class UsersService {
   }
 
   findOne(email: string): Promise<User> {
-    return this.usersRespository.findOne({ email });
+    return this.usersRespository.findOneBy({ email });
   }
 
   create(createUserInput: CreateUserInput) {
